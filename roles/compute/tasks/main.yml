@@ -4,12 +4,13 @@
 - name: Change root pw (root|rpcr)
   user: name=root password=$6$rounds=656000$0tqH37pBAxrlG9H0$KLGmcdSUAkXbvbUq0VF.10FEnII6QEa9HTA6pdzlGg46voT5Wyl6u6eLckwyLuaDdf8ihW1r5aJYHVcLzmkiz.
 
+- name: disable host checking
+  lineinfile: dest=/etc/ssh/ssh_config line="   StrictHostKeyChecking no"
+
 - name: Installing EPEL
-  #command: rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
   yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
 
 - name: Enable epel
-  #    lineinfile: sed -i "s/enabled=0/enabled=1/g" /etc/yum.repos.d/epel.repo
   lineinfile: dest=/etc/yum.repos.d/epel.repo regexp="^enabled=0" line="enabled=1" state=present
 
 - name: Add some useful extra packages
@@ -18,8 +19,7 @@
     - vim
     - vim-X11
     - erlang-wx
-    - sshpass
-# vim-X11 is added for gvimdiff
+    # vim-X11 is added for gvimdiff
 
 - name: Stop Network manager
   service:
@@ -48,11 +48,17 @@
 - name: Restart SSH daemon
   service: name=sshd state=restarted
 
-- name: add root@controller key
-  command: sshpass -p rpcr ssh-copy-id -i /root/.ssh/id_rsa.pub -o StrictHostKeyChecking=no root@192.168.56.10
+- name: make .ssh dir
+  command: mkdir /root/.ssh
 
-- name: add root@controller key
-    #command: sshpass -p rpcr ssh-copy-id -i /root/.ssh/id_rsa.pub -o StrictHostKeyChecking=no root@192.168.56.20
-  command: ssh root@192.168.56.10 "sshpass -p rpcr ssh-copy-id -i /root/.ssh/id_rsa.pub -o StrictHostKeyChecking=no root@192.168.56.20"
+- name: get root key
+  get_url:
+    url: https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/private
+    dest: /root/private
+    mode: 0600
 
-#- name: add compute to packstack
+- name: change root key part 2
+  command: cp -f /root/private /root/.ssh/id_rsa
+
+- name: add root@controlle key part two
+  authorized_key: user=root key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public

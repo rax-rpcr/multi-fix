@@ -18,8 +18,8 @@ BOX               = 'centos/7'
 
 
 HOSTS = {
-   "controller1" => [NETWORK+"10", RAM, GUI, BOX],
    "compute1" => [NETWORK+"20", RAM, GUI, BOX],
+   "controller1" => [NETWORK+"10", RAM, GUI, BOX],
 }
 
 #ANSIBLE_INVENTORY_DIR = 'ansible/inventory'

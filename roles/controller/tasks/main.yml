@@ -4,13 +4,13 @@
 - name: Change root pw (root|rpcr)
   user: name=root password=$6$rounds=656000$0tqH37pBAxrlG9H0$KLGmcdSUAkXbvbUq0VF.10FEnII6QEa9HTA6pdzlGg46voT5Wyl6u6eLckwyLuaDdf8ihW1r5aJYHVcLzmkiz.
 
+- name: disable host checking
+  lineinfile: dest=/etc/ssh/ssh_config line="   StrictHostKeyChecking no"
+
 - name: Installing EPEL
-  #command: rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
   yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
 
-
 - name: Enable epel
-  #    lineinfile: sed -i "s/enabled=0/enabled=1/g" /etc/yum.repos.d/epel.repo
   lineinfile: dest=/etc/yum.repos.d/epel.repo regexp="^enabled=0" line="enabled=1" state=present
 
 - name: Add some useful extra packages
@@ -19,7 +19,6 @@
     - vim
     - vim-X11
     - erlang-wx
-    - sshpass
 # vim-X11 is added for gvimdiff
 
 - name: Stop Network manager
@@ -52,24 +51,6 @@
 - name: Gen Packstack Answers file
   command: packstack --gen-answer-file=/root/packstack-answers
 
-- name: Installing RDO Packstack on controller1
-  command: packstack --answer-file=/root/packstack-answers
-
-- name: disable default httpd vhost
-  command: mv /etc/httpd/conf.d/15-default.conf /etc/httpd/conf.d/15-default.conf.bak
-
-- name: restart apache
-  service: name=httpd state=reloaded
-
-- name: add keystonerc to stack user
-  command: cp /root/keystonerc_admin /home/stack/keystonerc_admin
-
-- name: set the right permissions to the keystonerc_admin file
-  file: path=/home/stack/keystonerc_admin owner=stack group=stack
-
-- name: add keystonerc to bashrc of root
-  lineinfile: dest=/root/.bashrc insertafter=EOF line=". keystonerc_admin" state=present
-
 - name: adds keystonerc to the bashrc of stack user
   lineinfile: dest=/home/stack/.bashrc insertafter=EOF line=". keystonerc_admin" state=present
 
@@ -90,3 +71,47 @@
 
 - name: Modify packstack-answers (4 of 4)
   lineinfile: dest=/root/packstack-answers regexp="^CONFIG_COMPUTE_HOSTS=" line="CONFIG_COMPUTE_HOSTS=192.168.56.20"
+
+- name: Modify packstack-answers (4 of 4)
+  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_PROVISION_DEMO=y" line="CONFIG_PROVISION_DEMO=n"
+
+- name: get root key
+  get_url:
+    url: https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/private
+    dest: /root/private
+    mode: 0600
+
+- name: change root key part 2
+  command: cp -f /root/private /root/.ssh/id_rsa
+
+- name: add root@compute key part two
+  authorized_key: user=root key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
+
+- name: delete id_rsa.pub
+  file: path=/root/.ssh/id_rsa.pub state=absent
+
+- name: get root key
+  get_url:
+    url: https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
+    dest: /root/public
+
+- name: change root public key part
+  command: cp -f /root/public /root/.ssh/id_rsa.pub
+
+- name: Installing RDO Packstack on controller1
+  command: packstack --answer-file=/root/packstack-answers
+
+- name: disable default httpd vhost
+  command: mv /etc/httpd/conf.d/15-default.conf /etc/httpd/conf.d/15-default.conf.bak
+
+- name: restart apache
+  service: name=httpd state=reloaded
+
+- name: add keystonerc to stack user
+  command: cp /root/keystonerc_admin /home/stack/keystonerc_admin
+
+- name: set the right permissions to the keystonerc_admin file
+  file: path=/home/stack/keystonerc_admin owner=stack group=stack
+
+- name: add keystonerc to bashrc of root
+  lineinfile: dest=/root/.bashrc insertafter=EOF line=". keystonerc_admin" state=present
