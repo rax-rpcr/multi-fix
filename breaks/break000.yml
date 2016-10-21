@@ -1,0 +1,62 @@
+# Author: Scott Gilbert
+# Tags: Network Nova Keystone
+# Level: 1, 2, or 3
+
+- hosts: all
+  become: true
+  tasks: 
+
+  - name: Setting up the exercise (step 1 of 1)
+    command: touch /tmp/breakfix.txt
+
+  - name: add task file to /root/breakfix.txt
+    blockinfile: 
+      dest: /root/breakfix.txt
+      create: yes
+      insertbefore: BOF
+      block: | 
+        Nothing is actually broken in this example! 
+        Problem is solved when XXXX ("you can ssh", "command runs without errors", etc)
+        Hints can be found in the /root/hint*.txt files
+        The solution can be found in /root/solution.txt
+
+  - name: add hints file to /root/hint1.txt 
+    blockinfile: 
+      dest: /root/hint1.txt
+      create: yes
+      insertbefore: BOF
+      block: |
+        This is a placeholder for the first hint. 
+        A good hint leads one in the direction of the 
+        source of the problem - without giving it away.
+        Some things you might put here:
+        What happens when you run XXXX?
+        Consider XXXX
+        Look in log file YYYY
+
+  - name: add hints file to /root/hint2.txt 
+    blockinfile: 
+      dest: /root/hint2.txt
+      create: yes
+      insertbefore: BOF
+      block: |
+        This is another placeholder for a second hint. 
+        If the user was unable to solve the problem based
+        on the hints in the first file, another hint may
+        be provided here.  This hint should lead the user
+        closer to the source of the problem.  
+
+  - name: add answer file to /root/solution.txt
+    blockinfile: 
+      dest: /root/solution.txt
+      create: yes
+      insertbefore: BOF
+      block: | 
+        This source of the problem is XXXXXX.
+        You can see that this is the problem by doing YYYYY.
+        To correct this, perform the following steps:
+        1. XXXX
+        2. YYYY
+        Remember, the goal is not just to fix the problem, but to 
+        understand it and learn how to identify and fix it
+        in the future.

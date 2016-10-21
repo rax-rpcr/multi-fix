@@ -1,0 +1,165 @@
+#!/bin/bash
+
+BREAKDIR='./breaks'
+COMPLETED_LABS=${BREAKDIR}/completed_labs
+BREAKTASKFILE=
+VIRTUAL_MACHINE_IP="127.0.0.1 -p 2222"
+ARR_INDEX=0
+
+get_ip_from_provider ()
+{ 
+  VIRTUAL_MACHINE_IP=$(basename .vagrant/machines/BF1/libvirt/logs/ssh-forwarding*.log  | awk -F- '{ print $4}' | cut -d_ -f1)
+}
+
+throw_informative_message ()
+{ 
+  [ -e ".vagrant/machines/BF1/libvirt" ] && get_ip_from_provider
+  echo
+  echo 'Breakfix operation complete!'
+  echo
+  echo "To access the BF1 VM: ssh root@${VIRTUAL_MACHINE_IP}"
+  echo '(password: rpcr).'
+  echo
+  echo 'Your task is decribed on file /root/breakfix.txt'
+  echo 'Hint files are in /root/hint*.txt'
+  echo 'Answer to the exercise: /root/solution.txt '
+  echo
+  echo 'Good luck!'
+  echo
+}
+
+clean_before_start ()
+{ 
+  [ -e sandbox_status ] && rm sandbox_status
+  [ -e playbook.retry ] && rm playbook.retry
+}
+
+choose_random_break_task_file ()
+{
+  # get list of all breaks, and then filter out those which have already been done
+  NOT_DONE_BREAKS="$(ls -1 ${BREAKDIR}/*yml | grep -v -f $COMPLETED_LABS)"
+  NUMBER_OF_NOT_DONE_BREAKS=$(echo $NOT_DONE_BREAKS | wc -w)
+
+  if [[ $NUMBER_OF_NOT_DONE_BREAKS > 0 ]] ; then
+    # randomly select one of the not-yet-done breakfix exercises
+    SELECTED_BREAK_NUM=$(( ($RANDOM % $NUMBER_OF_NOT_DONE_BREAKS) + 1 ))
+    BREAKTASKFILE=$(echo $NOT_DONE_BREAKS | cut -d ' ' -f $SELECTED_BREAK_NUM)
+  else 
+    # all breakfix exercises have been completed!  Return blank to indicate this.
+    BREAKTASKFILE=''
+  fi
+}
+
+update_completed_labs ()
+{
+  echo "${BREAKTASKFILE}" >> ${COMPLETED_LABS}
+}
+
+
+first_time_vm ()
+{
+  echo "remove vag dir"
+  rm -rf .vagrant
+  echo "running vagrant up"
+  vagrant up
+  status=${?}
+  echo $status
+  if [ "${status}" != "0" ] && [ -e playbook.retry ]
+  then
+    # try to re deploy the base playbook until successful
+    until [ "${status}" == "0" ]
+    do
+      echo
+      echo 'BASE ANSIBLE PLAYBOOK DEPLOYMENT FAILED!!!'
+      echo 'You should not worry!'
+      echo 'I will try to redeploy it until successful'
+      echo
+#      ansible-playbook -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory \
+#        --limit @playbook.retry playbook.yml
+#      status=${?}
+      status=0
+    done
+  elif [ "${status}" != "0" ]
+  then
+    echo
+    echo Something unexpected happened.
+    echo Please delete the virtual machine with ./breakfix-cleanup
+    echo and rerun ${0}
+    echo
+    # Something else failed, fail abruptly
+    exit ${status}
+  fi  
+  if [ ! -f ${COMPLETED_LABS} ]
+  then
+    touch ${COMPLETED_LABS}
+  fi
+  [ "${status}" == "0" ] && vagrant sandbox on
+  [ "${?}" == "0" ] && vagrant sandbox commit
+  return ${?}
+}
+
+rollback_vm ()
+{
+  vagrant sandbox rollback
+  return ${?}
+}
+
+setup_exercise ()
+{
+  # If a breakfix was specified, then use it. Else, select a random breakfix
+  if [[ -e "$1" ]] ; then
+    BREAKTASKFILE="$1"
+  else
+    # Choose random file
+    choose_random_break_task_file
+    if [ "$BREAKTASKFILE" == "" ] ; then
+      read -p "Either you have completed all of the breakfix exercises, or your completed_labs file does not exist. Do you want to create this file/start all over? (y/n)" CONF
+      if [ "$CONF" = "y" ]
+      then
+        echo "As you wish! Recreating out ${COMPLETED_LABS}..."
+        rm ${COMPLETED_LABS}
+        touch ${COMPLETED_LABS}
+        choose_random_break_task_file
+      else
+        echo "You're all done, then. Bye!" 
+        return 1
+      fi
+    fi
+  fi
+
+  echo "Lab selected: ${BREAKTASKFILE}"
+
+  ansible-playbook -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory ${BREAKTASKFILE} --ssh-extra-args="-o ControlPath=none -o ConnectTimeout=20"
+  status=${?}
+  [ "${status}" == "0" ] && throw_informative_message
+  return ${status}
+}
+
+# main section
+
+# Make sure no trash files are scattered around
+#clean_before_start
+
+export BREAKTASKFILE
+export ANSIBLE_SCP_IF_SSH=y
+
+# test if vm snapshot exsist or not
+vagrant sandbox status > sandbox_status 2>&1
+egrep '(not|off)' sandbox_status
+snapshot=$?
+echo "grep status $?"
+
+#if grep of standbox is true, status is 0 (first_time_vm) else status is 1 (rollback)
+if [ $snapshot -eq 0 ]
+then
+  echo "first_time_vm"
+  first_time_vm
+  status=${?}
+elif [ $snapshot -eq 1 ]
+  then
+   echo "rollback_vm"
+   rollback_vm && sleep 5
+   status=${?}
+fi
+[ "${status}" == "0" ] && setup_exercise ${1}
+[ "${?}" == "0" ] && update_completed_labs

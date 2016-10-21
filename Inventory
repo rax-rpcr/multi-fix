@@ -1,0 +1,6 @@
+[controller]
+192.168.56.10
+controller1
+
+[compute]
+192.168.56.20

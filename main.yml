@@ -1,0 +1,9 @@
+- hosts: controller1
+  become: true
+  roles:
+  - controller
+
+- hosts: compute1
+  become: true
+  roles:
+  - compute
