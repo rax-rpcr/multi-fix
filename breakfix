@@ -3,22 +3,22 @@
 BREAKDIR='./breaks'
 COMPLETED_LABS=${BREAKDIR}/completed_labs
 BREAKTASKFILE=
-VIRTUAL_MACHINE_IP="127.0.0.1 -p 2222"
+#VIRTUAL_MACHINE_IP="127.0.0.1 -p 2222"
 ARR_INDEX=0
 
-get_ip_from_provider ()
-{ 
-  VIRTUAL_MACHINE_IP=$(basename .vagrant/machines/BF1/libvirt/logs/ssh-forwarding*.log  | awk -F- '{ print $4}' | cut -d_ -f1)
-}
+#get_ip_from_provider ()
+#{
+#  VIRTUAL_MACHINE_IP=$(basename .vagrant/machines/BF1/libvirt/logs/ssh-forwarding*.log  | awk -F- '{ print $4}' | cut -d_ -f1)
+#}
 
 throw_informative_message ()
-{ 
-  [ -e ".vagrant/machines/BF1/libvirt" ] && get_ip_from_provider
+{
+#  [ -e ".vagrant/machines/BF1/libvirt" ] && get_ip_from_provider
   echo
   echo 'Breakfix operation complete!'
   echo
-  echo "To access the BF1 VM: ssh root@${VIRTUAL_MACHINE_IP}"
-  echo '(password: rpcr).'
+  echo "To access the controller1 VM: vagrant ssh controller1"
+  echo 'Then just "sudo -i"'
   echo
   echo 'Your task is decribed on file /root/breakfix.txt'
   echo 'Hint files are in /root/hint*.txt'
@@ -29,7 +29,7 @@ throw_informative_message ()
 }
 
 clean_before_start ()
-{ 
+{
   [ -e sandbox_status ] && rm sandbox_status
   [ -e playbook.retry ] && rm playbook.retry
 }
@@ -44,7 +44,7 @@ choose_random_break_task_file ()
     # randomly select one of the not-yet-done breakfix exercises
     SELECTED_BREAK_NUM=$(( ($RANDOM % $NUMBER_OF_NOT_DONE_BREAKS) + 1 ))
     BREAKTASKFILE=$(echo $NOT_DONE_BREAKS | cut -d ' ' -f $SELECTED_BREAK_NUM)
-  else 
+  else
     # all breakfix exercises have been completed!  Return blank to indicate this.
     BREAKTASKFILE=''
   fi
@@ -88,7 +88,7 @@ first_time_vm ()
     echo
     # Something else failed, fail abruptly
     exit ${status}
-  fi  
+  fi
   if [ ! -f ${COMPLETED_LABS} ]
   then
     touch ${COMPLETED_LABS}
@@ -121,7 +121,7 @@ setup_exercise ()
         touch ${COMPLETED_LABS}
         choose_random_break_task_file
       else
-        echo "You're all done, then. Bye!" 
+        echo "You're all done, then. Bye!"
         return 1
       fi
     fi
@@ -129,7 +129,7 @@ setup_exercise ()
 
   echo "Lab selected: ${BREAKTASKFILE}"
 
-  ansible-playbook -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory ${BREAKTASKFILE} --ssh-extra-args="-o ControlPath=none -o ConnectTimeout=20"
+  ansible-playbook -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory ${BREAKTASKFILE} --ssh-extra-args="-o ControlPath=none -o StrictHostKeyChecking=no -o ConnectTimeout=20"
   status=${?}
   [ "${status}" == "0" ] && throw_informative_message
   return ${status}
