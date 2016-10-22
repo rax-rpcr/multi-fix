@@ -75,6 +75,9 @@
 #- name: Modify packstack-answers (4 of 4)
 #  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_PROVISION_DEMO=y" line="CONFIG_PROVISION_DEMO=n"
 
+#- name: Modify packstack-answers (4 of 4)
+#  lineinfile: dest=/root/packstack-answers line="EXCLUDE_SERVERS=192.168.56.10"
+
 - name: remove old private keys
   file: path=/root/private state=absent
 

@@ -52,16 +52,40 @@
   #command: mkdir /root/.ssh
   file: dest=/root/.ssh state=directory mode=0600
 
-- name: get root key
+- name: remove old private keys
+  file: path=/root/private state=absent
+
+- name: remove old public keys
+  file: path=/root/public state=absent
+
+- name: remove old .ssh private keys
+  file: path=/root/.ssh/id_rsa state=absent
+
+- name: remove old .ssh public keys
+  file: path=/root/.ssh/id_rsa.pub state=absent
+
+- file: path=/root/.ssh state=directory
+
+- name: get root private key
   get_url:
     url: https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/private
     dest: /root/private
     mode: 0600
     force: yes
 
-- name: change root key part 2
-  #command: cp -f /root/private /root/.ssh/id_rsa
-  file: src=/root/private dest=/root/.ssh/id_rsa force=yes mode=0600
+- name: set root private key
+  command: cp -f /root/private /root/.ssh/id_rsa
+  #file: src=/root/private dest=/root/.ssh/id_rsa force=yes mode=0600 #doesn't overwrite dest file :broken:
 
-- name: add root@controlle key part two
+- name: get public key
+  get_url:
+    url: https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
+    dest: /root/public
+    force: yes
+
+- name: set root public key
+  command: cp -f /root/public /root/.ssh/id_rsa.pub
+  #file: src=/root/public dest=/root/.ssh/id_rsa.pub force=yes #doesn't overwrite dest file :broken:
+
+- name: add @compute key to authorized_key
   authorized_key: user=root key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
