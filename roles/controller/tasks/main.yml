@@ -48,8 +48,8 @@
 - name: Install Packstack package
   yum: name=openstack-packstack state=present
 
-- name: Gen Packstack Answers file
-  command: packstack --gen-answer-file=/root/packstack-answers
+#- name: Gen Packstack Answers file
+#  command: packstack --gen-answer-file=/root/packstack-answers
 
 - name: adds keystonerc to the bashrc of stack user
   lineinfile: dest=/home/stack/.bashrc insertafter=EOF line=". keystonerc_admin" state=present
@@ -60,46 +60,62 @@
 - name: Restart SSH daemon
   service: name=sshd state=restarted
 
-- name: Modify packstack-answers (1 of 4)
-  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_NOVA_COMPUTE_PRIVIF=" line="CONFIG_NOVA_COMPUTE_PRIVIF=eth1"
+#- name: Modify packstack-answers (1 of 4)
+#  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_NOVA_COMPUTE_PRIVIF=" line="CONFIG_NOVA_COMPUTE_PRIVIF=eth1"
 
-- name: Modify packstack-answers (2 of 4)
-  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_NOVA_NETWORK_PRIVIF=" line="CONFIG_NOVA_NETWORK_PRIVIF=eth1"
+#- name: Modify packstack-answers (2 of 4)
+#  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_NOVA_NETWORK_PRIVIF=" line="CONFIG_NOVA_NETWORK_PRIVIF=eth1"
 
-- name: Modify packstack-answers (3 of 4)
-  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_NETWORK_HOSTS=" line="CONFIG_NETWORK_HOSTS=192.168.56.10"
+#- name: Modify packstack-answers (3 of 4)
+#  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_NETWORK_HOSTS=" line="CONFIG_NETWORK_HOSTS=192.168.56.10"
 
-- name: Modify packstack-answers (4 of 4)
-  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_COMPUTE_HOSTS=" line="CONFIG_COMPUTE_HOSTS=192.168.56.20"
+#- name: Modify packstack-answers (4 of 4)
+#  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_COMPUTE_HOSTS=" line="CONFIG_COMPUTE_HOSTS=192.168.56.20"
 
-- name: Modify packstack-answers (4 of 4)
-  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_PROVISION_DEMO=y" line="CONFIG_PROVISION_DEMO=n"
+#- name: Modify packstack-answers (4 of 4)
+#  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_PROVISION_DEMO=y" line="CONFIG_PROVISION_DEMO=n"
 
-- name: get root key
+- name: remove old private keys
+  file: path=/root/private state=absent
+
+- name: remove old public keys
+  file: path=/root/public state=absent
+
+- name: remove old .ssh private keys
+  file: path=/root/.ssh/id_rsa state=absent
+
+- name: remove old .ssh public keys
+  file: path=/root/.ssh/id_rsa.pub state=absent
+
+- file: path=/root/.ssh state=directory
+
+- name: get root private key
   get_url:
     url: https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/private
     dest: /root/private
     mode: 0600
+    force: yes
 
-- name: change root key part 2
+- name: set root private key
   command: cp -f /root/private /root/.ssh/id_rsa
+  #file: src=/root/private dest=/root/.ssh/id_rsa force=yes mode=0600 #doesn't overwrite dest file :broken:
 
-- name: add root@compute key part two
-  authorized_key: user=root key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
-
-- name: delete id_rsa.pub
-  file: path=/root/.ssh/id_rsa.pub state=absent
-
-- name: get root key
+- name: get public key
   get_url:
     url: https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
     dest: /root/public
+    force: yes
 
-- name: change root public key part
+- name: set root public key
   command: cp -f /root/public /root/.ssh/id_rsa.pub
+  #file: src=/root/public dest=/root/.ssh/id_rsa.pub force=yes #doesn't overwrite dest file :broken:
+
+- name: add @compute key to authorized_key
+  authorized_key: user=root key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
 
 - name: Installing RDO Packstack on controller1
-  command: packstack --answer-file=/root/packstack-answers
+  #command: packstack --answer-file=/root/packstack-answers
+  command: packstack --allinone
 
 - name: disable default httpd vhost
   command: mv /etc/httpd/conf.d/15-default.conf /etc/httpd/conf.d/15-default.conf.bak

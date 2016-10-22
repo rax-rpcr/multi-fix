@@ -36,8 +36,8 @@
 - name: Change the default editor to the friendly vim
   lineinfile: dest=/etc/profile.d/editor.sh create=yes state=present line="export EDITOR=vim"
 
-- name: Add Newton repository
-  yum: name=centos-release-openstack-newton state=latest
+#- name: Add Newton repository
+#  yum: name=centos-release-openstack-newton state=latest
 
 - name: Apply all system updates
   yum: name=* state=latest
@@ -49,16 +49,19 @@
   service: name=sshd state=restarted
 
 - name: make .ssh dir
-  command: mkdir /root/.ssh
+  #command: mkdir /root/.ssh
+  file: dest=/root/.ssh state=directory mode=0600
 
 - name: get root key
   get_url:
     url: https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/private
     dest: /root/private
     mode: 0600
+    force: yes
 
 - name: change root key part 2
-  command: cp -f /root/private /root/.ssh/id_rsa
+  #command: cp -f /root/private /root/.ssh/id_rsa
+  file: src=/root/private dest=/root/.ssh/id_rsa force=yes mode=0600
 
 - name: add root@controlle key part two
   authorized_key: user=root key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
