@@ -5,7 +5,7 @@
 # ---- Configuration variables ----
 
 GUI               = false # Enable/Disable GUI
-RAM               = 8192   # Default memory size in MB
+RAM               = 6144   # Default memory size in MB
 
 # Network configuration
 DOMAIN            = ".osp.example.com"
