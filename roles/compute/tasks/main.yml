@@ -18,7 +18,7 @@
   with_items:
     - vim
     - vim-X11
-    - erlang-wx
+    #- erlang-wx
     # vim-X11 is added for gvimdiff
 
 - name: Stop Network manager
@@ -36,8 +36,9 @@
 - name: Change the default editor to the friendly vim
   lineinfile: dest=/etc/profile.d/editor.sh create=yes state=present line="export EDITOR=vim"
 
-#- name: Add Newton repository
-#  yum: name=centos-release-openstack-newton state=latest
+- name: Add OpenStack repository
+  #yum: name=centos-release-openstack-newton state=latest
+  yum: name=centos-release-openstack-mitaka state=latest
 
 - name: Apply all system updates
   yum: name=* state=latest
