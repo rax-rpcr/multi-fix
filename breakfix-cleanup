@@ -1,12 +1,12 @@
 #!/bin/bash
 
-read -p "Heads up! This will destroy the BF1 VM, you'll need to wait for packstack again after running this script.
-If you wish to run another breakfix, simply re-run the breakfix script and the snapshot will be rolled back.
-Are you sure you want to do this? (y/n) " CONF
+read -p "Heads up! This will completely destroy the break fix lab environment, you'll have to wait for it all to build again.
+If you wish to run another breakfix, simply re-run the breakfix script and the snapshot will be rolled back. It will save SOOOO much time
+Are you sure you want to destroy the lab? (y/n) " CONF
 if [ "$CONF" = "y" ]
 then
-  echo "As you wish! Destroying BF1..." 
-  vagrant destroy -f BF1
+  echo "As you wish! Destroying BF1..."
+  vagrant -y destroy `vagrant status | awk '/co[mn]/{print $1}'`
 else
   exit
 fi
