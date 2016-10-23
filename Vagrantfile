@@ -42,6 +42,7 @@ Vagrant.configure(2) do |config|
       config.vm.hostname = opts[:name]
 
       config.vm.provider "virtualbox" do |v|
+        v.customize ["modifyvm", :id, "--name", opts[:name]]
         v.customize ["modifyvm", :id, "--memory", opts[:mem]]
         v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
       end

@@ -1,15 +1,15 @@
 # Author: Allie Barnes
-# Tags: Network Nova 
+# Tags: Network Nova
 # Level: 1
 
-- hosts: all
+- hosts: controller
   become: true
-  tasks: 
+  tasks:
   - name: exercise setup step 1
     yum: name=python-pip state=present
 
   - name: exercise setup step 2
-    pip: name=shade  
+    pip: name=shade
 
   - name: exercise setup step 3
     shell: "openstack --os-auth-url=$(grep OS_AUTH_URL /root/keystonerc_admin | awk -F'=' '{print $2}') --os-username=$(grep OS_USERNAME /root/keystonerc_admin | awk -F'=' '{print $2}') --os-password=$(grep OS_PASSWORD /root/keystonerc_admin | awk -F'=' '{print $2}') --os-project-name=admin  user set --password rackspace admin"
@@ -23,7 +23,7 @@
 
   - name: exercise setup step 6
     service: name={{item}} state=restarted
-    with_items: 
+    with_items:
       - 'neutron-server'
       - 'neutron-l3-agent'
       - 'neutron-dhcp-agent'
@@ -31,26 +31,26 @@
       - 'neutron-metering-agent'
       - 'neutron-openvswitch-agent'
 
-  - name: exercise setup step 7 
+  - name: exercise setup step 7
     lineinfile: dest=/etc/nova/nova.conf regexp='^#rpc_response_timeout.*' line='rpc_response_timeout=360'
 
   - name: exercise setup step 8
     service: name={{item}} state=restarted
-    with_items: 
+    with_items:
       - openstack-nova-api
       - openstack-nova-compute
       - openstack-nova-scheduler
 
 
   - name: exercise setup step 9
-    os_server: 
+    os_server:
       state: present
       auth:
         auth_url: http://10.0.2.15:5000/v2.0/
         username: admin
         password: rackspace
         project_name: admin
-      name: vm1 
+      name: vm1
       image: cirros
       flavor: 1
       nics:
@@ -58,26 +58,26 @@
       auto_ip: yes
 
   - name: add task file to /root/breakfix.txt
-    blockinfile: 
+    blockinfile:
       dest: /root/breakfix.txt
       create: yes
       insertbefore: BOF
-      block: | 
-        A user has spun up a new VM (vm1) and cannot connect to it. Troubleshoot to ensure we can ping/SSH to the instance. 
+      block: |
+        A user has spun up a new VM (vm1) and cannot connect to it. Troubleshoot to ensure we can ping/SSH to the instance.
         Hints can be found in the /root/hint.txt files
         The solution can be found in /root/solution.txt
 
-  - name: add hints file to /root/hint1.txt 
-    blockinfile: 
+  - name: add hints file to /root/hint1.txt
+    blockinfile:
       dest: /root/hint1.txt
       create: yes
       insertbefore: BOF
       block: |
-        What happens when you try to ping/SSH to the VM? 
+        What happens when you try to ping/SSH to the VM?
         Does the host VM (breakfix) have proper connectivity?
 
-  - name: add hints file to /root/hint2.txt 
-    blockinfile: 
+  - name: add hints file to /root/hint2.txt
+    blockinfile:
       dest: /root/hint2.txt
       create: yes
       insertbefore: BOF
@@ -85,22 +85,20 @@
         How can we configure network restrictions to/from guest instances?
 
   - name: add hints file to /root/hint3.txt
-    blockinfile: 
+    blockinfile:
       dest: /root/hint3.txt
       create: yes
       insertbefore: BOF
       block: |
-        What security group does this VM belong to? 
-        What rules are present for that security group? 
+        What security group does this VM belong to?
+        What rules are present for that security group?
 
   - name: add answer file to /root/solution.txt
-    blockinfile: 
+    blockinfile:
       dest: /root/solution.txt
       create: yes
       insertbefore: BOF
-      block: | 
-        The default security group rules haven't been created. Fix by running: 
+      block: |
+        The default security group rules haven't been created. Fix by running:
         $ nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
         $ nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
- 
-

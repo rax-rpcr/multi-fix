@@ -2,46 +2,46 @@
 # Tags: Network Keystone
 # Level: 2
 
-- hosts: all
+- hosts: controller
   become: true
   tasks:
-  
+
   - name: setting up exercise
     selinux: policy=targeted state=enforcing
 
   - name: setting up the exercise (step 1 of 2)
     file: path=/usr/bin/neutron-{{ item }}-agent setype=gnome_home_t
     with_items:
-      - dhcp 
+      - dhcp
       - l3
       - metadata
       - metering
       - openvswitch
-    
+
   - name: setting up the exercise (step 2 of 2)
     file: path=/etc/neutron setype=lvm_metadata_t recurse=yes
 
   - name: add task file to /root/breakfix.txt
-    blockinfile: 
+    blockinfile:
       dest: /root/breakfix.txt
       create: yes
       insertbefore: BOF
-      block: | 
-        Users are reporting that network services aren't working properly. 
+      block: |
+        Users are reporting that network services aren't working properly.
         Hints can be found in the /root/hint{1,2} files
         The solution can be found in /root/solution.txt
 
-  - name: add hints file to /root/hint1.txt 
-    blockinfile: 
+  - name: add hints file to /root/hint1.txt
+    blockinfile:
       dest: /root/hint1.txt
       create: yes
       insertbefore: BOF
       block: |
-        What happens when we try to SSH to the host? 
+        What happens when we try to SSH to the host?
         When you log in via console, do networking services (including neutron) look healthy?
 
   - name: add hints file to /root/hint2.txt
-    blockinfile: 
+    blockinfile:
       dest: /root/hint2.txt
       create: yes
       insertbefore: BOF
@@ -50,12 +50,11 @@
         Could there be any security features getting in our way?
 
   - name: add answer file to /root/solution.txt
-    blockinfile: 
+    blockinfile:
       dest: /root/solution.txt
       create: yes
       insertbefore: BOF
-      block: | 
-        The SELinux types for some Neutron files have been messed with! Fix using 'restorecon': 
+      block: |
+        The SELinux types for some Neutron files have been messed with! Fix using 'restorecon':
           # restorecon -Rv /etc/neutron/
           # restorecon -v /usr/bin/neutron-*
-

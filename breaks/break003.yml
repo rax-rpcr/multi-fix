@@ -2,39 +2,39 @@
 # Tags: Glance
 # Level: 2
 
-- hosts: all
+- hosts: controller
   become: true
-  tasks: 
+  tasks:
 
   - name: exercise setup (step 1/3)
     mysql_user: name=glance host_all=yes state=absent
 
-  - name: exercise setup (step 2/3) 
+  - name: exercise setup (step 2/3)
     service: name=openstack-glance-api state=restarted
 
   - name: exercise setup (step 3/3)
     service: name=openstack-glance-registry state=restarted
 
   - name: add task file to /root/breakfix.txt
-    blockinfile: 
+    blockinfile:
       dest: /root/breakfix.txt
       create: yes
       insertbefore: BOF
-      block: | 
+      block: |
         Users report that the image service isn't working.
         Hints can be found in the /root/hint{1,2,3}.txt files
         The solution can be found in /root/solution.txt
 
-  - name: add hints file to /root/hint1.txt 
-    blockinfile: 
+  - name: add hints file to /root/hint1.txt
+    blockinfile:
       dest: /root/hint1.txt
       create: yes
       insertbefore: BOF
       block: |
         Are you able to view Glance images? What services are required for this?
 
-  - name: add hints file to /root/hint2.txt 
-    blockinfile: 
+  - name: add hints file to /root/hint2.txt
+    blockinfile:
       dest: /root/hint2.txt
       create: yes
       insertbefore: BOF
@@ -43,23 +43,22 @@
         Check the logs!
 
   - name: add hints file to /root/hint3.txt
-    blockinfile: 
+    blockinfile:
       dest: /root/hint3.txt
       create: yes
       insertbefore: BOF
       block: |
-        Are you able to log into MySQL with the 'glance' user? 
+        Are you able to log into MySQL with the 'glance' user?
         What configuration file can you find the credentials for this user in?
 
   - name: add answer file to /root/solution.txt
-    blockinfile: 
+    blockinfile:
       dest: /root/solution.txt
       create: yes
       insertbefore: BOF
-      block: | 
-        The 'glance' user has been removed from MySQL. Add it back like so: 
+      block: |
+        The 'glance' user has been removed from MySQL. Add it back like so:
         mysql > grant all privileges on glance.* to 'glance'@'%' identified by '(password from /etc/glance/glance-api.conf)';
 
-        Restart Glance services after this: 
+        Restart Glance services after this:
         systemctl restart openstack-glance-api openstack-api-registry
-

@@ -1,8 +1,8 @@
 # Author: Charlie Martinez
-# Tags: Network Nova 
+# Tags: Network Nova
 # Level: 1
 
-- hosts: all
+- hosts: controller
   become: true
   tasks:
 
@@ -52,5 +52,3 @@
         $ nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
         Add a router interface to the private network
         $ neutron router-interface-add router1 private_subnet
-
-

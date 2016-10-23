@@ -2,7 +2,7 @@
 # Tags: Network Nova Keystone
 # Level: 1, 2, or 3
 
-- hosts: all
+- hosts: controller
   become: true
   tasks:
 
@@ -11,7 +11,7 @@
     command: path=/tmp/breakfix.txt state=touch
 
   - name: add task file to /root/breakfix.txt
-    blockinfile: 
+    blockinfile:
       dest: /root/breakfix.txt
       create: yes
       insertbefore: BOF
