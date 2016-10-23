@@ -37,8 +37,8 @@
   lineinfile: dest=/etc/profile.d/editor.sh create=yes state=present line="export EDITOR=vim"
 
 - name: Add OpenStack repository
-  #yum: name=centos-release-openstack-newton state=latest
-  yum: name=centos-release-openstack-mitaka state=latest
+  yum: name=centos-release-openstack-newton state=latest
+  #yum: name=centos-release-openstack-mitaka state=latest
 
 - name: Apply all system updates
   yum: name=* state=latest
@@ -50,7 +50,6 @@
   service: name=sshd state=restarted
 
 - name: make .ssh dir
-  #command: mkdir /root/.ssh
   file: dest=/root/.ssh state=directory mode=0600
 
 - name: remove old private keys
