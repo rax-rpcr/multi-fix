@@ -64,7 +64,8 @@
 - name: remove old .ssh public keys
   file: path=/root/.ssh/id_rsa.pub state=absent
 
-- file: path=/root/.ssh state=directory
+- name: Ensuring /root/.ssh is there
+  file: path=/root/.ssh state=directory
 
 - name: get root private key
   get_url:
