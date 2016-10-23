@@ -48,11 +48,11 @@ Vagrant.configure(2) do |config|
 
       config.vm.network :private_network, ip: opts[:eth1]
     end
-    config.vm.provision "ansible" do |ansible|
-      ansible.sudo = true
-      ansible.playbook = "main.yml"
-      ansible.verbose = "vvv"
-      ansible.host_key_checking = false
-    end
+  end
+  config.vm.provision "ansible" do |ansible|
+    ansible.sudo = true
+    ansible.playbook = "main.yml"
+    ansible.verbose = "vvv"
+    ansible.host_key_checking = false
   end
 end

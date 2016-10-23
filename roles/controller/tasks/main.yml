@@ -39,11 +39,9 @@
 - name: Add OpenStack repository
   yum: name=centos-release-openstack-newton state=latest
   #yum: name=centos-release-openstack-mitaka state=latest
-  #yum: name=centos-release-openstack-liberty state=latest
-  #yum: name=centos-release-openstack-kilo state=latest
 
-- name: Apply all system updates
-  yum: name=* state=latest
+#- name: Apply all system updates
+#  yum: name=* state=latest
 
 - name: Install Packstack package
   yum: name=openstack-packstack state=present
@@ -56,24 +54,6 @@
 
 - name: Restart SSH daemon
   service: name=sshd state=restarted
-
-#- name: Modify packstack-answers (1 of 4)
-#  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_NOVA_COMPUTE_PRIVIF=" line="CONFIG_NOVA_COMPUTE_PRIVIF=eth1"
-
-#- name: Modify packstack-answers (2 of 4)
-#  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_NOVA_NETWORK_PRIVIF=" line="CONFIG_NOVA_NETWORK_PRIVIF=eth1"
-
-#- name: Modify packstack-answers (3 of 4)
-#  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_NETWORK_HOSTS=" line="CONFIG_NETWORK_HOSTS=192.168.56.10"
-
-#- name: Modify packstack-answers (4 of 4)
-#  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_COMPUTE_HOSTS=" line="CONFIG_COMPUTE_HOSTS=192.168.56.20"
-
-#- name: Modify packstack-answers (4 of 4)
-#  lineinfile: dest=/root/packstack-answers regexp="^CONFIG_PROVISION_DEMO=y" line="CONFIG_PROVISION_DEMO=n"
-
-#- name: Modify packstack-answers (4 of 4)
-#  lineinfile: dest=/root/packstack-answers line="EXCLUDE_SERVERS=192.168.56.10"
 
 - name: remove old private keys
   file: path=/root/private state=absent
@@ -114,8 +94,6 @@
   authorized_key: user=root key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
 
 - name: Installing RDO Packstack on controller1
-  #command: packstack --answer-file=/root/packstack-answers
-#  command: packstack --allinone
   command: packstack --install-host=192.168.56.10 --mariadb-install=y --os-glance-install=y --os-cinder-install=y --os-nova-install=y --os-neutron-install=y --os-ceilometer-install=y --os-gnocchi-install=y --os-client-install=y --os-swift-install=y --os-aodh-install=n --nagios-install=y --os-neutron-vpnaas-install=n --os-neutron-lbaas-install=n --neutron-fwaas=n --os-horizon-install=y --novacompute-privif=eth1 --novanetwork-privif=eth1 --novanetwork-pubif=eth0 --novanetwork-auto-assign-floating-ip=y --os-manila-install=n --os-heat-install=y --os-compute-hosts=192.168.56.10,192.168.56.20 --use-epel=y --provision-demo=y --novanetwork-pubif=eth0 --ntp-servers=0.north-america.pool.ntp.org,1.north-america.pool.ntp.org,2.north-america.pool.ntp.org,3.north-america.pool.ntp.org
 
 - name: disable default httpd vhost
