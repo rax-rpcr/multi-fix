@@ -2,7 +2,7 @@
 # Tags: Network Keystone
 # Level: 2
 
-- hosts: controller
+- hosts: controller1
   become: true
   tasks:
 

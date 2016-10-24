@@ -2,7 +2,7 @@
 # Tags: Nova Libvirt
 # Level: 1
 
-- hosts: controller
+- hosts: controller1
   become: yes
   tasks:
 

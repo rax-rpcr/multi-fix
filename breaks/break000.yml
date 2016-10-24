@@ -8,7 +8,7 @@
 
   - name: Setting up the exercise (step 1 of 1)
     #command: touch /tmp/breakfix.txt
-    command: path=/tmp/breakfix.txt state=touch
+    file: path=/tmp/breakfix.txt state=touch
 
   - name: add task file to /root/breakfix.txt
     blockinfile:

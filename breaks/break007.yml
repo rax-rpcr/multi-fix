@@ -2,7 +2,7 @@
 # Tags: Nova/Libvirt
 # Level: 3
 
-- hosts: controller
+- hosts: controller1
   become: true
   tasks:
   - name: exercise setup step 1

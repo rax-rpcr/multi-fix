@@ -2,7 +2,7 @@
 # Tags:  glance
 # Level: 2
 
-- hosts: controller 
+- hosts: controller 1
   become: true
   tasks:
 

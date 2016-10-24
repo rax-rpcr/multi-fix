@@ -2,7 +2,7 @@
 # Tags: Swift
 # Level: 3
 
-- hosts: controller
+- hosts: controller1
   become: true
   tasks:
 

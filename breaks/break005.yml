@@ -2,7 +2,7 @@
 # Tags: Network Nova
 # Level: 1
 
-- hosts: controller
+- hosts: controller1
   become: true
   tasks:
 
