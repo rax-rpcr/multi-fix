@@ -90,3 +90,6 @@
 
 - name: add @compute key to authorized_key
   authorized_key: user=root key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
+
+- name: add @vagrant key to authorized_key
+  authorized_key: user=vagrant key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public

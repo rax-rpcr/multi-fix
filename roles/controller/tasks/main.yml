@@ -94,8 +94,11 @@
 - name: add @compute key to authorized_key
   authorized_key: user=root key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
 
+- name: add @vagrant key to authorized_key
+  authorized_key: user=vagrant key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
+
 - name: Installing RDO Packstack on controller1
-  command: packstack --install-host=192.168.56.10 --mariadb-install=y --os-glance-install=y --os-cinder-install=y --os-nova-install=y --os-neutron-install=y --os-ceilometer-install=y --os-gnocchi-install=y --os-client-install=y --os-swift-install=y --os-aodh-install=n --nagios-install=y --os-neutron-vpnaas-install=n --os-neutron-lbaas-install=n --neutron-fwaas=n --os-horizon-install=y --novacompute-privif=eth1 --novanetwork-privif=eth1 --novanetwork-pubif=eth0 --novanetwork-auto-assign-floating-ip=y --os-manila-install=n --os-heat-install=y --os-compute-hosts=192.168.56.10,192.168.56.20 --use-epel=y --provision-demo=y --novanetwork-pubif=eth0 --ntp-servers=0.north-america.pool.ntp.org,1.north-america.pool.ntp.org,2.north-america.pool.ntp.org,3.north-america.pool.ntp.org
+  command: packstack --install-host=192.168.56.10 --mariadb-install=y --os-glance-install=y --os-cinder-install=y --os-nova-install=y --os-neutron-install=y --os-ceilometer-install=y --os-gnocchi-install=y --os-client-install=y --os-swift-install=y --os-aodh-install=n --nagios-install=y --os-neutron-vpnaas-install=n --os-neutron-lbaas-install=n --neutron-fwaas=n --os-horizon-install=y --novacompute-privif=eth1 --novanetwork-privif=eth1 --novanetwork-pubif=eth0 --novanetwork-auto-assign-floating-ip=y --os-manila-install=n --os-heat-install=y --os-compute-hosts=192.168.56.10,192.168.56.20 --use-epel=y --provision-demo=y --novanetwork-pubif=eth0
 
 - name: disable default httpd vhost
   command: mv /etc/httpd/conf.d/15-default.conf /etc/httpd/conf.d/15-default.conf.bak

@@ -129,7 +129,7 @@ setup_exercise ()
 
   echo "Lab selected: ${BREAKTASKFILE}"
 
-  ansible-playbook -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory ${BREAKTASKFILE} --ssh-extra-args="-o ControlPath=none -o StrictHostKeyChecking=no -o ConnectTimeout=20"
+  ansible-playbook -vvvv -i .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory ${BREAKTASKFILE} --ssh-extra-args="-vvvv -o ControlPath=none -o StrictHostKeyChecking=no -o ConnectTimeout=20 -i /home/tangeman/Projects/multi-fix/keys/private "
   status=${?}
   [ "${status}" == "0" ] && throw_informative_message
   return ${status}
