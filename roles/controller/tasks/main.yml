@@ -36,6 +36,9 @@
 - name: Change the default editor to the friendly vim
   lineinfile: dest=/etc/profile.d/editor.sh create=yes state=present line="export EDITOR=vim"
 
+- name: install CentOS keys
+  rpm_key: state=present key=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7
+
 - name: Add OpenStack repository
   yum: name=centos-release-openstack-newton state=latest
   #yum: name=centos-release-openstack-mitaka state=latest
@@ -120,3 +123,13 @@
 
 - name: restarting redis service
   service: name=redis state=restarted enabled=yes
+
+- name: Apply all system updates
+  yum: name=* state=latest
+
+- name: 'Restarting host machine(s) (Shows errors - OK to ignore!)'
+  shell: sleep 2 && shutdown -r now
+  async: 1
+  poll: 0
+  ignore_errors: true
+  become: yes
