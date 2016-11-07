@@ -9,12 +9,12 @@ boxes = [
         :mem => "2048",
         :cpu => "2"
     },
-    {
-        :name => "controller1",
-        :eth1 => "192.168.56.10",
-        :mem => "6144",
-        :cpu => "2"
-    },
+#    {
+#        :name => "controller1",
+#        :eth1 => "192.168.56.10",
+#        :mem => "6144",
+#        :cpu => "2"
+#    },
 #    {
 #        :name => "server3",
 #        :eth1 => "192.168.205.12",
@@ -45,6 +45,11 @@ Vagrant.configure(2) do |config|
         v.customize ["modifyvm", :id, "--name", opts[:name]]
         v.customize ["modifyvm", :id, "--memory", opts[:mem]]
         v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
+        # Enable pagefusion if you are running on Linux hosts
+        #v.customize ["modifyvm", :id, "--pagefusion", "on"]
+        v.customize ["modifyvm", :id, "--paravirtprovider", "kvm"]
+        v.customize ["modifyvm", :id, "--nictype1", "virtio"]
+        v.customize ["modifyvm", :id, "--nictype2", "virtio"]
       end
 
       config.vm.network :private_network, ip: opts[:eth1]
