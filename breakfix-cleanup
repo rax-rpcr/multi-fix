@@ -6,7 +6,7 @@ Are you sure you want to destroy the lab? (y/n) " CONF
 if [ "$CONF" = "y" ]
 then
   echo "As you wish! Destroying BF1..."
-  vagrant -f destroy `vagrant status | awk '/co[mn]/{print $1}'`
+  vagrant destroy -f `vagrant status | awk '/co[mn]/{print $1}'`
 else
   exit
 fi
