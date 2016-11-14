@@ -119,11 +119,11 @@
 - name: add keystonerc to bashrc of root
   lineinfile: dest=/root/.bashrc insertafter=EOF line=". keystonerc_admin" state=present
 
-- name: fixing redis service
-  lineinfile: dest=/etc/redis.conf regexp=^bind=192.168.56.10 line=bind=0.0.0.0
+#- name: fixing redis service
+#  lineinfile: dest=/etc/redis.conf regexp=^bind=192.168.56.10 line=bind=0.0.0.0
 
-- name: restarting redis service
-  service: name=redis state=restarted enabled=yes
+#- name: restarting redis service
+#  service: name=redis state=restarted enabled=yes
 
 - name: Apply all system updates
   yum: name=* state=latest
@@ -152,6 +152,13 @@
 
 - name: install redis openstack version
   yum: name=redis state=present
+
+- name: update redis config
+  file: path=/etc/redis.conf.rpmsave dest=/etc/redis.conf state=link owner=redis
+
+- name: fixing redis service
+  #lineinfile: dest=/etc/redis.conf regexp=^bind=0.0.0.0 line=^bind=192.168.56.10
+  lineinfile: dest=/etc/redis.conf regexp=^bind=0.0.0.0 line=# bind=192.168.56.10
 
 - name: set redis to start on reboot
   service:
