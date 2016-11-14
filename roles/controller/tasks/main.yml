@@ -18,6 +18,7 @@
   with_items:
     - vim
     - vim-X11
+    - wget
     #- erlang-wx
 # vim-X11 is added for gvimdiff
 
@@ -101,7 +102,7 @@
   authorized_key: user=vagrant key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
 
 - name: Installing RDO Packstack on controller1
-  command: packstack --install-host=192.168.56.10 --mariadb-install=y --os-glance-install=y --os-cinder-install=y --os-nova-install=y --os-neutron-install=y --os-ceilometer-install=y --os-gnocchi-install=y --os-client-install=y --os-swift-install=y --os-aodh-install=n --nagios-install=y --os-neutron-vpnaas-install=n --os-neutron-lbaas-install=n --neutron-fwaas=n --os-horizon-install=y --novacompute-privif=eth1 --novanetwork-privif=eth1 --novanetwork-pubif=eth0 --novanetwork-auto-assign-floating-ip=y --os-manila-install=n --os-heat-install=y --os-compute-hosts=192.168.56.10,192.168.56.20 --use-epel=y --provision-demo=y --novanetwork-pubif=eth0
+  command: packstack --install-host=192.168.56.10 --mariadb-install=y --os-glance-install=y --os-cinder-install=y --os-nova-install=y --os-neutron-install=y --os-ceilometer-install=y --os-gnocchi-install=y --os-client-install=y --os-swift-install=y --os-aodh-install=n --nagios-install=y --os-neutron-vpnaas-install=n --os-neutron-lbaas-install=n --neutron-fwaas=n --os-horizon-install=y --novacompute-privif=eth1 --novanetwork-privif=eth1 --novanetwork-pubif=eth0 --novanetwork-auto-assign-floating-ip=y --os-manila-install=y --os-heat-install=y --os-compute-hosts=192.168.56.10,192.168.56.20,192.168.56.21 --use-epel=y --provision-demo=y
 
 - name: disable default httpd vhost
   command: mv /etc/httpd/conf.d/15-default.conf /etc/httpd/conf.d/15-default.conf.bak
@@ -127,9 +128,33 @@
 - name: Apply all system updates
   yum: name=* state=latest
 
-- name: 'Restarting host machine(s) (Shows errors - OK to ignore!)'
-  shell: sleep 2 && shutdown -r now
+- name: Rebooting server after OS upgrade
+  shell: sleep 10 && shutdown -r now
   async: 1
   poll: 0
   ignore_errors: true
-  become: yes
+  tags: reboot
+
+- name: Waiting for server to come back
+  local_action: wait_for port=22 host="{{ ansible_ssh_host | default(inventory_hostname) }}" search_regex=OpenSSH delay=30
+  become: false
+
+- name: stop centos redis service
+  service:
+    name: redis
+    state: stopped
+
+- name: remove centos redis package
+  yum: name=redis state=absent
+
+- name: create redis run directory
+  file: path=/var/run/redis state=directory mode=0755 owner=redis
+
+- name: install redis openstack version
+  yum: name=redis state=present
+
+- name: set redis to start on reboot
+  service:
+    name: redis
+    state: restarted
+    enabled: true

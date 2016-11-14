@@ -7,3 +7,8 @@
   become: true
   roles:
   - compute
+
+- hosts: compute2
+  become: true
+  roles:
+  - compute

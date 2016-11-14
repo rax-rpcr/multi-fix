@@ -18,6 +18,7 @@
   with_items:
     - vim
     - vim-X11
+    - wget
     #- erlang-wx
     # vim-X11 is added for gvimdiff
 
@@ -100,9 +101,15 @@
 - name: Apply all system updates
   yum: name=* state=latest
 
-- name: 'Restarting host machine(s) (Shows errors - OK to ignore!)'
-  shell: sleep 2 && shutdown -r now
+- name: Rebooting server after OS upgrade
+  shell: sleep 10 && shutdown -r now
   async: 1
   poll: 0
   ignore_errors: true
-  become: yes
+  tags: reboot
+
+#- pause: seconds=30
+
+- name: Waiting for server to come back
+  local_action: wait_for port=22 host="{{ ansible_ssh_host | default(inventory_hostname) }}" search_regex=OpenSSH delay=30
+  become: false
