@@ -34,13 +34,19 @@
     state: stopped
     enabled: no
 
+- name: Start Network service
+  service:
+    name: network
+    state: started
+    enabled: yes
+
 - name: Change the default editor to the friendly vim
   lineinfile: dest=/etc/profile.d/editor.sh create=yes state=present line="export EDITOR=vim"
 
 - name: install CentOS keys
   rpm_key: state=present key=https://www.centos.org/keys/RPM-GPG-KEY-CentOS-7
 
-- name: Add OpenStack repository
+- name: Add OpenStack Newton repository
   yum: name=centos-release-openstack-newton state=latest
   #yum: name=centos-release-openstack-mitaka state=latest
 
@@ -153,10 +159,13 @@
 - name: install redis openstack version
   yum: name=redis state=present
 
+- name: removing redis config (you should not worry, it will be back)
+  file: path=/etc/redis.conf state=absent
+
 - name: update redis config
   file: path=/etc/redis.conf.rpmsave dest=/etc/redis.conf state=link owner=redis
 
-- name: fixing redis service
+- name: fixing redis config file
   #lineinfile: dest=/etc/redis.conf regexp=^bind=0.0.0.0 line=^bind=192.168.56.10
   lineinfile: dest=/etc/redis.conf regexp=^bind=0.0.0.0 line=# bind=192.168.56.10
 

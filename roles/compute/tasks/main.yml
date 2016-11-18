@@ -34,6 +34,12 @@
     state: stopped
     enabled: no
 
+- name: Start Network service
+  service:
+    name: network
+    state: started
+    enabled: yes
+
 - name: Change the default editor to the friendly vim
   lineinfile: dest=/etc/profile.d/editor.sh create=yes state=present line="export EDITOR=vim"
 
