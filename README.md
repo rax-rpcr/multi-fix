@@ -7,12 +7,12 @@ These scripts will build a basic two VM's running RDO. One node will be a contro
 ### Virtualbox is required to build this lab:
 
  - **Virtualbox** ([https://www.virtualbox.org/wiki/Downloads](https://www.virtualbox.org/wiki/Downloads))
-   ##### Directions to install Virtualbox
-    ###### Fedora/CentOS/Red Hat:
+##### Directions to install Virtualbox
+###### Fedora/CentOS/Red Hat:
 	- All: `wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | rpm --import -`
 	- RHEL/Centos: `http://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo`
 	- Fedora: `http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo`
-    ###### Ubuntu/Mint
+###### Ubuntu/Mint
 	- Add this to /etc/apt/sources.list
 	  - `deb http://download.virtualbox.org/virtualbox/debian xenial contrib`
 	- then
