@@ -1,6 +1,6 @@
 # multi-fix
 
-These scripts will build a basic two VM's running RDO. One node will be a controller node while the other will be a compute dedicated node. Purpose of these scripts is to build a lab to practice hands on break fix, maintenance preperation, or getting to know new features coming in RDO/OSP.
+These scripts will build a basic two VM's running RDO. One node will be a controller node while the other will be a dedicated compute node. Purpose of these scripts is to build a lab to practice hands on break fix, maintenance preperation, or getting to know new features coming in RDO/OSP.
 
 ### Requirements for your machine:
 
@@ -9,16 +9,16 @@ These scripts will build a basic two VM's running RDO. One node will be a contro
  - **Virtualbox** ([https://www.virtualbox.org/wiki/Downloads](https://www.virtualbox.org/wiki/Downloads))
    - Directions to install Virtualbox
     - Fedora/CentOS/Red Hat:
-	All: `wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | rpm --import -`
-	RHEL/Centos: `http://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo`
-	Fedora: `http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo`
+	- All: `wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | rpm --import -`
+	- RHEL/Centos: `http://download.virtualbox.org/virtualbox/rpm/el/virtualbox.repo`
+	- Fedora: `http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo`
     - Ubuntu/Mint
-	Add this to /etc/apt/sources.list
-	  `deb http://download.virtualbox.org/virtualbox/debian xenial contrib`
-	then
-	  $ `wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -`
-	  $ `sudo apt-get update`
-	  $ `sudo sudo apt-get install virtualbox-5.1`
+	- Add this to /etc/apt/sources.list
+	  - `deb http://download.virtualbox.org/virtualbox/debian xenial contrib`
+	- then
+	  - $ `wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -`
+	  - $ `sudo apt-get update`
+	  - $ `sudo sudo apt-get install virtualbox-5.1`
 
 ### Mandatory Software for your physical system (whichever virtualization engine you choose to use for your virtual machine):
  - **Git** ([https://git-scm.com/downloads](https://git-scm.com/downloads))
