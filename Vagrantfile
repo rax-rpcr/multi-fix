@@ -12,6 +12,8 @@ boxes = [
         :mem => "2048",
         :cpu => "2"
     },
+    # If you enable compute2, add the eth1 address to the packstack install
+    # on under the os-compute-hosts argument in the roles/controller/task/main.yml
 #    {
 #        :name => "compute2",
 #        :eth1 => "192.168.56.21",
