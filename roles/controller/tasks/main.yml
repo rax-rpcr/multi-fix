@@ -1,17 +1,22 @@
 - name: Add Stack User (stack|stack)
   user: name=stack comment="Stack User" groups=wheel password=$6$rounds=656000$GxOkQlwGoe.LBYrK$tIFHEOC/mUNwvTxdqLJNNxSUOQmyaxILNswSh2itglm3104zfjJPs07JASsexLCng4T5ZrWPob4hQK8tlQuJx. state=present
+  tags: users
 
 - name: Change root pw (root|rpcr)
   user: name=root password=$6$rounds=656000$0tqH37pBAxrlG9H0$KLGmcdSUAkXbvbUq0VF.10FEnII6QEa9HTA6pdzlGg46voT5Wyl6u6eLckwyLuaDdf8ihW1r5aJYHVcLzmkiz.
+  tags: users
 
 - name: disable host checking
   lineinfile: dest=/etc/ssh/ssh_config line="   StrictHostKeyChecking no"
+  tags: ssh
 
-- name: Installing EPEL
-  yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
+#- name: Installing EPEL
+#  yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
+#  tags: epel
 
-- name: Enable epel
-  lineinfile: dest=/etc/yum.repos.d/epel.repo regexp="^enabled=0" line="enabled=1" state=present
+#- name: Enable epel
+#  lineinfile: dest=/etc/yum.repos.d/epel.repo regexp="^enabled=0" line="enabled=1" state=present
+#  tags: epel
 
 - name: Add some useful extra packages
   yum: name={{ item }} state=present
@@ -20,7 +25,8 @@
     - vim-X11
     - wget
     #- erlang-wx
-# vim-X11 is added for gvimdiff
+    # vim-X11 is added for gvimdiff
+  tags: yum
 
 - name: Stop Network manager
   service:
@@ -50,8 +56,9 @@
   yum: name=centos-release-openstack-newton state=latest
   #yum: name=centos-release-openstack-mitaka state=latest
 
-#- name: Apply all system updates
-#  yum: name=* state=latest
+- name: install yum-plugin-priorities
+  yum: name=yum-plugin-priorities state=latest
+  become: yes
 
 - name: Install Packstack package
   yum: name=openstack-packstack state=present
@@ -107,8 +114,11 @@
 - name: add @vagrant key to authorized_key
   authorized_key: user=vagrant key=https://raw.githubusercontent.com/rax-rpcr/multi-fix/master/keys/public
 
+- name: Apply all system updates
+  yum: name=* state=latest
+
 - name: Installing RDO Packstack on controller1
-  command: packstack --install-host=192.168.56.10 --mariadb-install=y --os-glance-install=y --os-cinder-install=y --os-nova-install=y --os-neutron-install=y --os-ceilometer-install=y --os-gnocchi-install=y --os-client-install=y --os-swift-install=y --os-aodh-install=n --nagios-install=y --os-neutron-vpnaas-install=n --os-neutron-lbaas-install=n --neutron-fwaas=n --os-horizon-install=y --novacompute-privif=eth1 --novanetwork-privif=eth1 --novanetwork-pubif=eth0 --novanetwork-auto-assign-floating-ip=y --os-manila-install=y --os-heat-install=y --os-compute-hosts=192.168.56.10,192.168.56.20,192.168.56.21 --use-epel=y --provision-demo=y
+  command: packstack --install-host=192.168.56.10 --mariadb-install=y --os-glance-install=y --os-cinder-install=y --os-nova-install=y --os-neutron-install=y --os-ceilometer-install=y --os-gnocchi-install=y --os-client-install=y --os-swift-install=y --os-aodh-install=n --nagios-install=y --os-neutron-vpnaas-install=n --os-neutron-lbaas-install=n --neutron-fwaas=n --os-horizon-install=y --novacompute-privif=eth1 --novanetwork-privif=eth1 --novanetwork-pubif=eth0 --novanetwork-auto-assign-floating-ip=y --os-manila-install=y --os-heat-install=y --os-compute-hosts=192.168.56.10,192.168.56.20 --use-epel=n --provision-demo=y --provision-demo-floatrange=10.211.55.224/29 --os-neutron-ovs-bridge-mappings=extnet:br-ex --os-neutron-ml2-type-drivers=vxlan,flat
 
 - name: disable default httpd vhost
   command: mv /etc/httpd/conf.d/15-default.conf /etc/httpd/conf.d/15-default.conf.bak
@@ -131,9 +141,6 @@
 #- name: restarting redis service
 #  service: name=redis state=restarted enabled=yes
 
-- name: Apply all system updates
-  yum: name=* state=latest
-
 - name: Rebooting server after OS upgrade
   shell: sleep 10 && shutdown -r now
   async: 1
@@ -141,36 +148,38 @@
   ignore_errors: true
   tags: reboot
 
+- pause: seconds=60
+
 - name: Waiting for server to come back
   local_action: wait_for port=22 host="{{ ansible_ssh_host | default(inventory_hostname) }}" search_regex=OpenSSH delay=30
   become: false
 
-- name: stop centos redis service
-  service:
-    name: redis
-    state: stopped
+#- name: stop centos redis service
+#  service:
+#    name: redis
+#    state: stopped
 
-- name: remove centos redis package
-  yum: name=redis state=absent
+#- name: remove centos redis package
+#  yum: name=redis state=absent
 
-- name: create redis run directory
-  file: path=/var/run/redis state=directory mode=0755 owner=redis
+#- name: create redis run directory
+#  file: path=/var/run/redis state=directory mode=0755 owner=redis
 
-- name: install redis openstack version
-  yum: name=redis state=present
+#- name: install redis openstack version
+#  yum: name=redis state=present
 
-- name: removing redis config (you should not worry, it will be back)
-  file: path=/etc/redis.conf state=absent
+#- name: removing redis config (you should not worry, it will be back)
+#  file: path=/etc/redis.conf state=absent
 
-- name: update redis config
-  file: path=/etc/redis.conf.rpmsave dest=/etc/redis.conf state=link owner=redis
+#- name: update redis config
+#  file: path=/etc/redis.conf.rpmsave dest=/etc/redis.conf state=link owner=redis
 
-- name: fixing redis config file
+#- name: fixing redis config file
   #lineinfile: dest=/etc/redis.conf regexp=^bind=0.0.0.0 line=^bind=192.168.56.10
-  lineinfile: dest=/etc/redis.conf regexp=^bind=0.0.0.0 line=# bind=192.168.56.10
+#  lineinfile: dest=/etc/redis.conf regexp=^bind=0.0.0.0 line=# bind=192.168.56.10
 
-- name: set redis to start on reboot
-  service:
-    name: redis
-    state: restarted
-    enabled: true
+#- name: set redis to start on reboot
+#  service:
+#    name: redis
+#    state: restarted
+#    enabled: true
